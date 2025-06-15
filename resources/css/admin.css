@@ -1,0 +1,95 @@
+/* Admin Layout Styles */
+:root {
+    --sidebar-width: 260px;
+    --topbar-height: 60px;
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar-menu .nav-link {
+    font-weight: 500;
+    color: #4b5563 !important;
+    transition: all 0.2s;
+}
+
+.sidebar-menu .nav-link:hover {
+    background-color: #f3f4f6;
+    color: var(--primary-color) !important;
+}
+
+.sidebar-menu .nav-link.active {
+    background-color: #eef2ff;
+    color: var(--primary-color) !important;
+    border-right: 3px solid var(--primary-color);
+}
+
+.sidebar-menu .nav-link i {
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+
+.sidebar-menu .nav-link:hover i,
+.sidebar-menu .nav-link.active i {
+    color: var(--primary-color);
+}
+
+/* Topbar */
+.topbar {
+    height: var(--topbar-height);
+    min-height: var(--topbar-height);
+}
+
+.search-bar {
+    background-color: #f1f5f9 !important;
+}
+
+/* Content */
+.content-body {
+    height: calc(100vh - var(--topbar-height));
+}
+
+/* Custom Utilities */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: fixed;
+        left: calc(-1 * var(--sidebar-width));
+        height: 100vh;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .sidebar.show {
+        left: 0;
+    }
+}

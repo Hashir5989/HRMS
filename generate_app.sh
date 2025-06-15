@@ -1,0 +1,19 @@
+#!/bin/bash
+php artisan make:model Employee -mfc
+php artisan make:model Department -mfc
+php artisan make:model Designation -mfc
+php artisan make:model Team -mfc
+php artisan make:model Project -mfc
+php artisan make:model Task -mfc
+php artisan make:model TaskStatus -mf
+php artisan make:model TaskComment -mf
+php artisan make:model TaskAttachment -mf
+php artisan make:model LeaveType -mf
+php artisan make:model LeaveApplication -mfc
+php artisan make:model Holiday -mfc
+php artisan make:model Meeting -mfc
+php artisan make:model Conversation -mf
+php artisan make:model Message -mf
+php artisan make:model Folder -mfc
+php artisan make:model File -mfc
+php artisan make:model ActivityLog -mf
