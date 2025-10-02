@@ -16,4 +16,5 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('teams', App\Http\Controllers\TeamController::class);
     Route::resource('projects', App\Http\Controllers\ProjectController::class);
     Route::resource('tasks', App\Http\Controllers\TaskController::class);
+    Route::put('tasks/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
 });

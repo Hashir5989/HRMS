@@ -2,9 +2,63 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
+use App\Models\Project;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    //
+    public function store(Request $request)
+    {
+        $this->authorize('task.create');
+        
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'project_id' => 'required|exists:projects,id',
+            'description' => 'nullable|string',
+            'assigned_user_id' => 'nullable|exists:users,id',
+            'priority' => 'required|in:low,medium,high,urgent',
+            'status' => 'required|in:Backlog,QA Ready,QA,Rework,Ready to Live,Live,Completed',
+        ]);
+
+        // Generate unique task ID based on project code
+        $project = Project::findOrFail($validated['project_id']);
+        $taskCount = $project->tasks()->withTrashed()->count() + 1;
+        $validated['task_id'] = $project->project_code . '-' . str_pad($taskCount, 3, '0', STR_PAD_LEFT);
+        
+        $validated['created_by'] = auth()->id();
+
+        Task::create($validated);
+
+        return back()->with('success', 'Task created successfully.');
+    }
+
+    public function updateStatus(Request $request, Task $task)
+    {
+        $this->authorize('task.edit');
+        
+        $validated = $request->validate([
+            'status' => 'required|in:Backlog,QA Ready,QA,Rework,Ready to Live,Live,Completed'
+        ]);
+
+        $task->update(['status' => $validated['status']]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Task status updated successfully', 'task' => $task]);
+        }
+
+        return back()->with('success', 'Task status updated.');
+    }
+    
+    public function destroy(Task $task)
+    {
+        $this->authorize('task.delete');
+        $task->delete();
+        
+        if (request()->wantsJson()) {
+            return response()->json(['message' => 'Task deleted successfully']);
+        }
+        
+        return back()->with('success', 'Task deleted successfully.');
+    }
 }
