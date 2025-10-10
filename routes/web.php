@@ -38,4 +38,13 @@ Route::middleware(['auth'])->group(function () {
     // File Management
     Route::resource('files', App\Http\Controllers\FileController::class);
     Route::get('files/{file}/download', [App\Http\Controllers\FileController::class, 'download'])->name('files.download');
+
+    // Holiday Management
+    Route::resource('holidays', App\Http\Controllers\HolidayController::class);
+
+    // Meeting Management
+    Route::resource('meetings', App\Http\Controllers\MeetingController::class);
+
+    // Designation Management
+    Route::resource('designations', App\Http\Controllers\DesignationController::class);
 });

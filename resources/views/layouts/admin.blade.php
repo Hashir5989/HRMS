@@ -62,6 +62,12 @@
                             <span>Departments</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('designations.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('designations.*') ? 'active' : '' }}">
+                            <i class="bi bi-award fs-5"></i>
+                            <span>Designations</span>
+                        </a>
+                    </li>
                     @endcan
                 </ul>
 
@@ -89,6 +95,13 @@
                         <a href="{{ route('teams.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('teams.*') ? 'active' : '' }}">
                             <i class="bi bi-people fs-5"></i>
                             <span>Teams</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('meetings.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('meetings.*') ? 'active' : '' }}">
+                            <i class="bi bi-calendar-video fs-5"></i>
+                            <span>Meetings</span>
                         </a>
                     </li>
 
@@ -121,6 +134,13 @@
                         </a>
                     </li>
                     @endcan
+
+                    <li class="nav-item">
+                        <a href="{{ route('holidays.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('holidays.*') ? 'active' : '' }}">
+                            <i class="bi bi-calendar-check fs-5"></i>
+                            <span>Holidays</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
             
