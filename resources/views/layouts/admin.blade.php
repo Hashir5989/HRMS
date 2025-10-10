@@ -37,87 +37,78 @@
             </div>
             
             <div class="sidebar-menu flex-grow-1 overflow-auto p-2">
+                <p class="text-muted small fw-semibold text-uppercase px-3 mb-1 mt-2" style="font-size:0.65rem; letter-spacing:0.08em;">Main</p>
                 <ul class="nav flex-column gap-1">
                     <li class="nav-item">
-                        <a href="{{ route('home') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 active">
+                        <a href="{{ route('home') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('home') ? 'active' : '' }}">
                             <i class="bi bi-grid fs-5"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    
+
                     @can('employee.view')
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
+                        <a href="{{ route('employees.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('employees.*') ? 'active' : '' }}">
                             <i class="bi bi-people fs-5"></i>
                             <span>Employees</span>
                         </a>
                     </li>
                     @endcan
-                    
+
                     @can('department.manage')
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
+                        <a href="{{ route('departments.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('departments.*') ? 'active' : '' }}">
                             <i class="bi bi-diagram-3 fs-5"></i>
                             <span>Departments</span>
                         </a>
                     </li>
                     @endcan
-                    
+                </ul>
+
+                <p class="text-muted small fw-semibold text-uppercase px-3 mb-1 mt-3" style="font-size:0.65rem; letter-spacing:0.08em;">Work</p>
+                <ul class="nav flex-column gap-1">
                     @can('project.view')
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
+                        <a href="{{ route('projects.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('projects.*') ? 'active' : '' }}">
                             <i class="bi bi-kanban fs-5"></i>
                             <span>Projects</span>
                         </a>
                     </li>
                     @endcan
-                    
+
                     @can('task.view')
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
+                        <a href="{{ route('tasks.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
                             <i class="bi bi-check2-square fs-5"></i>
                             <span>Tasks</span>
                         </a>
                     </li>
                     @endcan
-                    
-                    <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
-                            <i class="bi bi-calendar3 fs-5"></i>
-                            <span>Calendar</span>
-                        </a>
-                    </li>
-                    
-                    @can('chat.view')
-                    <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
-                            <i class="bi bi-chat-dots fs-5"></i>
-                            <span>Chat</span>
-                        </a>
-                    </li>
-                    @endcan
-                    
+
                     @can('file.view')
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
+                        <a href="{{ route('files.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('files.*') ? 'active' : '' }}">
                             <i class="bi bi-folder2-open fs-5"></i>
                             <span>Files</span>
                         </a>
                     </li>
                     @endcan
-                    
+                </ul>
+
+                <p class="text-muted small fw-semibold text-uppercase px-3 mb-1 mt-3" style="font-size:0.65rem; letter-spacing:0.08em;">HR</p>
+                <ul class="nav flex-column gap-1">
                     @can('attendance.view')
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
+                        <a href="{{ route('attendance.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
                             <i class="bi bi-clock-history fs-5"></i>
                             <span>Attendance</span>
                         </a>
                     </li>
                     @endcan
-                    
+
                     @can('leave.view')
                     <li class="nav-item">
-                        <a href="#" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3">
+                        <a href="{{ route('leaves.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('leaves.*') ? 'active' : '' }}">
                             <i class="bi bi-calendar-event fs-5"></i>
                             <span>Leave</span>
                         </a>
@@ -179,6 +170,14 @@
                                 5
                             </span>
                         </a>
+                        <div class="vr mx-1"></div>
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-link text-danger p-0 text-decoration-none d-flex align-items-center gap-2" title="Sign out">
+                                <i class="bi bi-box-arrow-right fs-5"></i>
+                                <span class="d-none d-md-inline fw-semibold">Sign out</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </header>

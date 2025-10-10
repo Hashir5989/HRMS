@@ -7,6 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 
 class Conversation extends Model
 {
-    /** @use HasFactory<\Database\Factories\ConversationFactory> */
     use HasFactory;
+
+    protected $fillable = ['title', 'type', 'created_by'];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function participants()
+    {
+        return $this->belongsToMany(User::class, 'conversation_user')->withPivot('last_read_at')->withTimestamps();
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function latestMessage()
+    {
+        return $this->hasOne(Message::class)->latestOfMany();
+    }
 }

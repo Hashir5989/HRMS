@@ -4,10 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+    public function index(Request $request)
+    {
+        $this->authorize('task.view');
+
+        $query = Task::with(['project', 'assignee']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->priority);
+        }
+
+        $tasks = $query->orderBy('updated_at', 'desc')->paginate(20);
+        return view('tasks.index', compact('tasks'));
+    }
+
+    public function create()
+    {
+        $this->authorize('task.create');
+        $projects = Project::all();
+        $users = User::all();
+        return view('tasks.create', compact('projects', 'users'));
+    }
+
+    public function show(Task $task)
+    {
+        $this->authorize('task.view');
+        $task->load(['project', 'assignee', 'creator', 'comments.user', 'attachments']);
+        return view('tasks.show', compact('task'));
+    }
+
     public function store(Request $request)
     {
         $this->authorize('task.create');

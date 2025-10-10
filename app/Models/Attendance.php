@@ -5,27 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ActivityLog extends Model
+class Attendance extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'action', 'model_type', 'model_id',
-        'old_values', 'new_values', 'ip_address', 'user_agent',
+        'user_id', 'date', 'clock_in', 'clock_out',
+        'total_hours', 'status', 'notes', 'ip_address',
     ];
 
     protected $casts = [
-        'old_values' => 'array',
-        'new_values' => 'array',
+        'date' => 'date',
+        'total_hours' => 'decimal:2',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function subject()
-    {
-        return $this->morphTo('model');
     }
 }

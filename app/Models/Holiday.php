@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Holiday extends Model
 {
-    /** @use HasFactory<\Database\Factories\HolidayFactory> */
     use HasFactory;
+
+    protected $fillable = ['name', 'date', 'type', 'description', 'is_recurring'];
+
+    protected $casts = [
+        'date' => 'date',
+        'is_recurring' => 'boolean',
+    ];
 }
