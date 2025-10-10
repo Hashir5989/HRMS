@@ -10,9 +10,9 @@
             <p class="text-muted mb-0">Manage and track your company projects</p>
         </div>
         @can('project.create')
-        <button class="btn btn-primary premium-btn rounded-pill px-4 shadow-sm">
+        <a href="{{ route('projects.create') }}" class="btn btn-primary premium-btn rounded-pill px-4 shadow-sm">
             <i class="bi bi-plus-lg me-1"></i> New Project
-        </button>
+        </a>
         @endcan
     </div>
 

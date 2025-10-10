@@ -84,7 +84,7 @@
                                 <select class="form-select" name="designation_id">
                                     <option value="">Select Designation</option>
                                     @foreach($designations as $desg)
-                                    <option value="{{ $desg->id }}" {{ old('designation_id') == $desg->id ? 'selected' : '' }}>{{ $desg->title }}</option>
+                                    <option value="{{ $desg->id }}" {{ old('designation_id') == $desg->id ? 'selected' : '' }}>{{ $desg->name }}</option>
                                     @endforeach
                                 </select>
                             </div>

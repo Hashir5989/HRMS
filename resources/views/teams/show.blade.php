@@ -59,7 +59,7 @@
                                     <span class="fw-semibold small">{{ $member->full_name }}</span>
                                 </div>
                             </td>
-                            <td class="small">{{ $member->designation->title ?? 'N/A' }}</td>
+                            <td class="small">{{ $member->designation->name ?? 'N/A' }}</td>
                             <td class="pe-3">
                                 <span class="badge bg-{{ $member->status == 'active' ? 'success' : 'secondary' }}-subtle text-{{ $member->status == 'active' ? 'success' : 'secondary' }}">{{ ucfirst($member->status) }}</span>
                             </td>

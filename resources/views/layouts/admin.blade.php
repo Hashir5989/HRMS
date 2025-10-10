@@ -85,6 +85,13 @@
                     </li>
                     @endcan
 
+                    <li class="nav-item">
+                        <a href="{{ route('teams.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('teams.*') ? 'active' : '' }}">
+                            <i class="bi bi-people fs-5"></i>
+                            <span>Teams</span>
+                        </a>
+                    </li>
+
                     @can('file.view')
                     <li class="nav-item">
                         <a href="{{ route('files.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('files.*') ? 'active' : '' }}">
@@ -184,6 +191,38 @@
             
             <!-- Content -->
             <div class="content-body flex-grow-1 overflow-auto p-3 p-md-4 bg-light">
+
+                {{-- Global Flash Messages --}}
+                @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-3" role="alert" id="flash-success">
+                    <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                @endif
+                @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-3" role="alert" id="flash-error">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                @endif
+                @if(session('warning'))
+                <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 mb-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('warning') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                @endif
+                @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-3" role="alert">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i><strong>Please fix the following errors:</strong>
+                    <ul class="mb-0 mt-1">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                @endif
+
                 @yield('content')
             </div>
         </main>
@@ -194,18 +233,26 @@
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebarClose = document.getElementById('sidebarClose');
-            
+
             if(sidebarToggle) {
                 sidebarToggle.addEventListener('click', () => {
                     sidebar.classList.add('show');
                 });
             }
-            
+
             if(sidebarClose) {
                 sidebarClose.addEventListener('click', () => {
                     sidebar.classList.remove('show');
                 });
             }
+
+            // Auto-dismiss flash messages after 4 seconds
+            setTimeout(function() {
+                document.querySelectorAll('.alert.show').forEach(function(el) {
+                    var bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+                    bsAlert.close();
+                });
+            }, 4000);
         });
     </script>
     
