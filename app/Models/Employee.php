@@ -15,7 +15,9 @@ class Employee extends Model
         'profile_photo', 'phone', 'date_of_birth', 'gender', 'address',
         'department_id', 'designation_id', 'team_id', 'manager_id', 'team_lead_id',
         'joining_date', 'employment_type', 'status', 'salary',
-        'emergency_contact', 'bank_details', 'documents'
+        'allowance_housing', 'allowance_medical', 'allowance_transport',
+        'deduction_tax', 'deduction_other', 'net_salary', 'pay_frequency',
+        'emergency_contact', 'bank_details', 'documents',
     ];
 
     protected $casts = [
@@ -25,7 +27,22 @@ class Employee extends Model
         'bank_details' => 'json',
         'documents' => 'json',
         'salary' => 'decimal:2',
+        'allowance_housing' => 'decimal:2',
+        'allowance_medical' => 'decimal:2',
+        'allowance_transport' => 'decimal:2',
+        'deduction_tax' => 'decimal:2',
+        'deduction_other' => 'decimal:2',
+        'net_salary' => 'decimal:2',
     ];
+
+    public function calculateNetSalary(): float
+    {
+        $base = (float) ($this->salary ?? 0);
+        $allowances = (float) ($this->allowance_housing ?? 0) + (float) ($this->allowance_medical ?? 0) + (float) ($this->allowance_transport ?? 0);
+        $deductions = (float) ($this->deduction_tax ?? 0) + (float) ($this->deduction_other ?? 0);
+
+        return max(0, ($base + $allowances) - $deductions);
+    }
 
     public function user()
     {

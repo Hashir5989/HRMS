@@ -35,7 +35,16 @@ class AttendanceController extends Controller
 
         $myAttendance = Attendance::where('user_id', $user->id)->where('date', Carbon::today())->first();
 
-        return view('attendance.index', compact('attendances', 'stats', 'date', 'myAttendance'));
+        $elapsedMinutes = 0;
+        $canClockOut = false;
+        if ($myAttendance && $myAttendance->clock_in) {
+            $clockIn = Carbon::parse($myAttendance->clock_in);
+            $elapsedMinutes = $clockIn->diffInMinutes(Carbon::now());
+            // Can clock out strictly only when 8 hours (480 mins) completed
+            $canClockOut = ($elapsedMinutes >= 480);
+        }
+
+        return view('attendance.index', compact('attendances', 'stats', 'date', 'myAttendance', 'elapsedMinutes', 'canClockOut'));
     }
 
     public function clockIn(Request $request)
@@ -58,7 +67,7 @@ class AttendanceController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
-        return back()->with('success', 'Clocked in successfully at ' . $now->format('h:i A'));
+        return back()->with('success', 'Clocked in successfully at '.$now->format('h:i A'));
     }
 
     public function clockOut()
@@ -67,7 +76,7 @@ class AttendanceController extends Controller
             ->where('date', Carbon::today())
             ->first();
 
-        if (!$attendance) {
+        if (! $attendance) {
             return back()->with('error', 'You need to clock in first.');
         }
 
@@ -77,13 +86,103 @@ class AttendanceController extends Controller
 
         $clockIn = Carbon::parse($attendance->clock_in);
         $clockOut = Carbon::now();
-        $totalHours = $clockIn->diffInMinutes($clockOut) / 60;
+        $elapsedMinutes = $clockIn->diffInMinutes($clockOut);
+
+        // Enforce 8-hour working time before clock out
+        if ($elapsedMinutes < 480) {
+            $remainingMins = 480 - $elapsedMinutes;
+            $remH = floor($remainingMins / 60);
+            $remM = $remainingMins % 60;
+
+            return back()->with('error', "Clock out is not allowed during your 8-hour working shift. Remaining time: {$remH}h {$remM}m.");
+        }
+
+        // If employee is on break, auto end break
+        $breakMinutes = $attendance->break_minutes ?? 0;
+        if ($attendance->on_break && $attendance->break_start) {
+            $breakStart = Carbon::parse($attendance->break_start);
+            $breakMinutes = max(1, $breakStart->diffInMinutes($clockOut));
+            $attendance->break_end = $clockOut->format('H:i:s');
+            $attendance->break_minutes = $breakMinutes;
+            $attendance->on_break = false;
+        }
+
+        $totalRawMinutes = $clockIn->diffInMinutes($clockOut);
+        $netWorkingMinutes = max(0, $totalRawMinutes - $breakMinutes);
+        $totalHours = round($netWorkingMinutes / 60, 2);
 
         $attendance->update([
             'clock_out' => $clockOut->format('H:i:s'),
-            'total_hours' => round($totalHours, 2),
+            'total_hours' => $totalHours,
+            'break_end' => $attendance->break_end,
+            'break_minutes' => $breakMinutes,
+            'on_break' => false,
         ]);
 
-        return back()->with('success', 'Clocked out successfully. Total hours: ' . round($totalHours, 2));
+        $msg = 'Clocked out successfully. Total hours: '.$totalHours.'h';
+        if ($breakMinutes > 0) {
+            $msg .= ' ('.$breakMinutes.' mins break deducted)';
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    public function startBreak(Request $request)
+    {
+        $request->validate([
+            'break_reason' => 'required|string|max:500',
+        ]);
+
+        $attendance = Attendance::where('user_id', auth()->id())
+            ->where('date', Carbon::today())
+            ->first();
+
+        if (! $attendance) {
+            return back()->with('error', 'You need to clock in first.');
+        }
+
+        if ($attendance->clock_out) {
+            return back()->with('error', 'You have already clocked out for today.');
+        }
+
+        if ($attendance->break_start) {
+            return back()->with('error', 'Only 1 break is allowed per day. You have already taken your break today.');
+        }
+
+        if ($attendance->on_break) {
+            return back()->with('error', 'You are already on a break.');
+        }
+
+        $now = Carbon::now();
+        $attendance->update([
+            'break_start' => $now->format('H:i:s'),
+            'break_reason' => $request->input('break_reason'),
+            'on_break' => true,
+        ]);
+
+        return back()->with('success', 'Break started at '.$now->format('h:i A').'. Reason: '.$request->input('break_reason'));
+    }
+
+    public function endBreak()
+    {
+        $attendance = Attendance::where('user_id', auth()->id())
+            ->where('date', Carbon::today())
+            ->first();
+
+        if (! $attendance || ! $attendance->on_break) {
+            return back()->with('error', 'You are not currently on a break.');
+        }
+
+        $now = Carbon::now();
+        $breakStart = Carbon::parse($attendance->break_start);
+        $durationMinutes = max(1, $breakStart->diffInMinutes($now));
+
+        $attendance->update([
+            'break_end' => $now->format('H:i:s'),
+            'break_minutes' => $durationMinutes,
+            'on_break' => false,
+        ]);
+
+        return back()->with('success', 'Break ended successfully ('.$durationMinutes.' mins). Resumed work!');
     }
 }

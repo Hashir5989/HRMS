@@ -101,7 +101,7 @@
 
                     <li class="nav-item">
                         <a href="{{ route('meetings.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('meetings.*') ? 'active' : '' }}">
-                            <i class="bi bi-calendar-video fs-5"></i>
+                            <i class="bi bi-camera-video-fill fs-5"></i>
                             <span>Meetings</span>
                         </a>
                     </li>
@@ -118,6 +118,15 @@
 
                 <p class="text-muted small fw-semibold text-uppercase px-3 mb-1 mt-3" style="font-size:0.65rem; letter-spacing:0.08em;">HR</p>
                 <ul class="nav flex-column gap-1">
+                    @if(auth()->user()->hasAnyRole(['Super Admin', 'HR']))
+                    <li class="nav-item">
+                        <a href="{{ route('payroll.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('payroll.*') ? 'active' : '' }}">
+                            <i class="bi bi-cash-stack fs-5"></i>
+                            <span>ERP Payroll</span>
+                        </a>
+                    </li>
+                    @endif
+
                     @can('attendance.view')
                     <li class="nav-item">
                         <a href="{{ route('attendance.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('attendance.*') ? 'active' : '' }}">

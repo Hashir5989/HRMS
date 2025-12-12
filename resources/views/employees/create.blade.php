@@ -126,15 +126,18 @@
                             </div>
                         </div>
 
+                        @if(auth()->user()->hasAnyRole(['Super Admin', 'HR']))
                         <div class="row mb-4">
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Salary</label>
+                                <label class="form-label fw-semibold">Base Salary ($)</label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
                                     <input type="number" class="form-control" name="salary" value="{{ old('salary') }}" step="0.01">
                                 </div>
+                                <small class="text-muted">Managed via ERP Payroll</small>
                             </div>
                         </div>
+                        @endif
 
                         <div class="bg-light rounded-3 p-3 mb-4">
                             <small class="text-muted"><i class="bi bi-info-circle me-1"></i>A user account will be created with the email above and default password <code>password123</code>.</small>
