@@ -26,11 +26,20 @@ class AttendanceController extends Controller
                 ->paginate(20);
         }
 
+        $statusCounts = Attendance::where('date', $date)
+            ->selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $totalUsersCount = User::count();
+        $presentAndWorking = ($statusCounts['present'] ?? 0) + ($statusCounts['late'] ?? 0) + ($statusCounts['half_day'] ?? 0);
+
         $stats = [
-            'present' => Attendance::where('date', $date)->where('status', 'present')->count(),
-            'absent' => User::count() - Attendance::where('date', $date)->whereIn('status', ['present', 'late', 'half_day'])->count(),
-            'late' => Attendance::where('date', $date)->where('status', 'late')->count(),
-            'on_leave' => Attendance::where('date', $date)->where('status', 'on_leave')->count(),
+            'present' => $statusCounts['present'] ?? 0,
+            'absent' => $totalUsersCount - $presentAndWorking,
+            'late' => $statusCounts['late'] ?? 0,
+            'on_leave' => $statusCounts['on_leave'] ?? 0,
         ];
 
         $myAttendance = Attendance::where('user_id', $user->id)->where('date', Carbon::today())->first();

@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Employee;
-use App\Models\Project;
-use App\Models\Task;
-use App\Models\LeaveApplication;
 use App\Models\Attendance;
 use App\Models\Department;
+use App\Models\LeaveApplication;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -64,15 +62,21 @@ class HomeController extends Controller
             ->where('status', 'present')
             ->count();
 
-        // Attendance trends (last 7 days)
+        // Attendance trends (last 7 days) — single query instead of 7
+        $startDate = Carbon::today()->subDays(6);
+        $trendCounts = Attendance::where('date', '>=', $startDate->toDateString())
+            ->where('status', 'present')
+            ->selectRaw('date, count(*) as count')
+            ->groupBy('date')
+            ->pluck('count', 'date')
+            ->toArray();
+
         $last7Days = [];
         $attendanceData = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $last7Days[] = $date->format('M d');
-            $attendanceData[] = Attendance::where('date', $date->toDateString())
-                ->where('status', 'present')
-                ->count();
+            $attendanceData[] = $trendCounts[$date->toDateString()] ?? 0;
         }
 
         // Leave distribution
@@ -85,7 +89,9 @@ class HomeController extends Controller
         $totalDepartments = Department::count();
 
         // Recent projects
-        $recentProjects = Project::orderBy('created_at', 'desc')->take(4)->get();
+        $recentProjects = Project::withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
+            $query->where('status', 'Completed');
+        }])->orderBy('created_at', 'desc')->take(4)->get();
 
         return view('home', compact(
             'totalEmployees', 'totalProjects', 'totalTasks', 'pendingLeaves',

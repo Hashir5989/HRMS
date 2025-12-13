@@ -13,14 +13,36 @@ class Project extends Model
     protected $fillable = [
         'name', 'project_code', 'description', 'client',
         'start_date', 'end_date', 'project_manager_id', 'team_id',
-        'priority', 'status', 'progress'
+        'priority', 'status', 'progress',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
-        'progress' => 'integer',
     ];
+
+    /**
+     * Calculate progress dynamically from completed tasks if tasks exist,
+     * otherwise fall back to manual progress stored in the database.
+     */
+    public function getProgressAttribute(): int
+    {
+        if (array_key_exists('tasks_count', $this->attributes)) {
+            $totalTasks = (int) $this->attributes['tasks_count'];
+            $completedTasks = (int) ($this->attributes['completed_tasks_count'] ?? 0);
+        } else {
+            $totalTasks = $this->tasks()->count();
+            $completedTasks = $totalTasks > 0
+                ? $this->tasks()->where('status', 'Completed')->count()
+                : 0;
+        }
+
+        if ($totalTasks === 0) {
+            return (int) ($this->attributes['progress'] ?? 0);
+        }
+
+        return (int) round(($completedTasks / $totalTasks) * 100);
+    }
 
     public function projectManager()
     {

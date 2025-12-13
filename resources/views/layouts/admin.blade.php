@@ -165,7 +165,7 @@
                         <a href="{{ route('notifications.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
                             <i class="bi bi-bell-fill fs-5"></i>
                             <span>Notifications</span>
-                            @php $nbCount = auth()->user()->unreadNotifications->count(); @endphp
+                            @php $nbCount = auth()->user()->unreadNotifications()->count(); @endphp
                             @if($nbCount > 0)
                             <span class="badge bg-danger rounded-pill ms-auto">{{ $nbCount }}</span>
                             @endif
@@ -217,7 +217,7 @@
                     <div class="d-flex align-items-center gap-3">
                         <a href="{{ route('notifications.index') }}" class="text-dark position-relative" title="Notifications">
                             <i class="bi bi-bell fs-5"></i>
-                            @php $unreadNotifs = auth()->user()->unreadNotifications->count(); @endphp
+                            @php $unreadNotifs = auth()->user()->unreadNotifications()->count(); @endphp
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notif-badge" style="font-size: 0.6rem; {{ $unreadNotifs === 0 ? 'display:none;' : '' }}">
                                 {{ $unreadNotifs }}
                             </span>

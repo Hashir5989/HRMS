@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use App\Models\User;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -12,7 +12,12 @@ class ProjectController extends Controller
     public function index()
     {
         $this->authorize('project.view');
-        $projects = Project::with(['projectManager', 'team'])->paginate(10);
+        $projects = Project::with(['projectManager', 'team'])
+            ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
+                $query->where('status', 'Completed');
+            }])
+            ->paginate(10);
+
         return view('projects.index', compact('projects'));
     }
 
@@ -21,13 +26,14 @@ class ProjectController extends Controller
         $this->authorize('project.create');
         $managers = User::role(['Manager', 'Super Admin'])->get();
         $teams = Team::all();
+
         return view('projects.create', compact('managers', 'teams'));
     }
 
     public function store(Request $request)
     {
         $this->authorize('project.create');
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'project_code' => 'required|string|unique:projects,project_code',
@@ -49,9 +55,9 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $this->authorize('project.view');
-        
+
         $project->load(['projectManager', 'team', 'tasks.assignee']);
-        
+
         // Group tasks by status for Kanban Board
         $tasksByStatus = [
             'Backlog' => $project->tasks->where('status', 'Backlog'),
@@ -62,7 +68,7 @@ class ProjectController extends Controller
             'Live' => $project->tasks->where('status', 'Live'),
             'Completed' => $project->tasks->where('status', 'Completed'),
         ];
-        
+
         return view('projects.kanban', compact('project', 'tasksByStatus'));
     }
 
@@ -71,16 +77,17 @@ class ProjectController extends Controller
         $this->authorize('project.edit');
         $managers = User::role(['Manager', 'Super Admin'])->get();
         $teams = Team::all();
+
         return view('projects.edit', compact('project', 'managers', 'teams'));
     }
 
     public function update(Request $request, Project $project)
     {
         $this->authorize('project.edit');
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'project_code' => 'required|string|unique:projects,project_code,' . $project->id,
+            'project_code' => 'required|string|unique:projects,project_code,'.$project->id,
             'description' => 'nullable|string',
             'client' => 'nullable|string|max:255',
             'start_date' => 'nullable|date',
@@ -89,7 +96,7 @@ class ProjectController extends Controller
             'team_id' => 'nullable|exists:teams,id',
             'priority' => 'required|in:low,medium,high,urgent',
             'status' => 'required|in:planning,active,on_hold,completed,cancelled',
-            'progress' => 'integer|min:0|max:100'
+            'progress' => 'integer|min:0|max:100',
         ]);
 
         $project->update($validated);
@@ -101,6 +108,7 @@ class ProjectController extends Controller
     {
         $this->authorize('project.delete');
         $project->delete();
+
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
     }
 }
