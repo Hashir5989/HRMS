@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Designation;
+use App\Models\Employee;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,7 +15,8 @@ class EmployeeController extends Controller
     public function index()
     {
         $this->authorize('employee.view');
-        $employees = Employee::with(['department', 'designation', 'manager'])->paginate(15);
+        $employees = Employee::with(['department', 'designation', 'manager', 'user'])->paginate(15);
+
         return view('employees.index', compact('employees'));
     }
 
@@ -26,6 +27,7 @@ class EmployeeController extends Controller
         $designations = Designation::all();
         $teams = Team::all();
         $managers = User::role(['Manager', 'Super Admin'])->get();
+
         return view('employees.create', compact('departments', 'designations', 'teams', 'managers'));
     }
 
@@ -52,7 +54,7 @@ class EmployeeController extends Controller
 
         // Create user account
         $user = User::create([
-            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'name' => $validated['first_name'].' '.$validated['last_name'],
             'email' => $validated['email'],
             'password' => Hash::make('password123'),
         ]);
@@ -60,7 +62,7 @@ class EmployeeController extends Controller
 
         // Generate employee ID
         $lastEmp = Employee::withTrashed()->orderBy('id', 'desc')->first();
-        $empId = 'EMP-' . str_pad(($lastEmp ? $lastEmp->id + 1 : 1), 5, '0', STR_PAD_LEFT);
+        $empId = 'EMP-'.str_pad(($lastEmp ? $lastEmp->id + 1 : 1), 5, '0', STR_PAD_LEFT);
 
         Employee::create([
             'user_id' => $user->id,
@@ -88,6 +90,7 @@ class EmployeeController extends Controller
     {
         $this->authorize('employee.view');
         $employee->load(['department', 'designation', 'team', 'manager', 'user']);
+
         return view('employees.show', compact('employee'));
     }
 
@@ -98,6 +101,7 @@ class EmployeeController extends Controller
         $designations = Designation::all();
         $teams = Team::all();
         $managers = User::role(['Manager', 'Super Admin'])->get();
+
         return view('employees.edit', compact('employee', 'departments', 'designations', 'teams', 'managers'));
     }
 
@@ -127,7 +131,7 @@ class EmployeeController extends Controller
         // Update user name
         if ($employee->user) {
             $employee->user->update([
-                'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+                'name' => $validated['first_name'].' '.$validated['last_name'],
             ]);
         }
 
@@ -138,6 +142,7 @@ class EmployeeController extends Controller
     {
         $this->authorize('employee.delete');
         $employee->delete();
+
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
     }
 }

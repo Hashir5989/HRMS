@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'HRMS Pro') }}</title>
+    <title>@yield('title', config('app.name', 'HRMS Pro'))</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +20,7 @@
 <body class="bg-light antialiased">
     <div id="app">
         <!-- We use absolute positioning for nav on auth pages to let the background shine -->
-        @if(!request()->is('login') && !request()->is('register'))
+        @if(!request()->is('login') && !request()->is('register') && !request()->is('password/*'))
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm py-3">
             <div class="container">
                 <a class="navbar-brand fw-bold d-flex align-items-center text-primary" href="{{ url('/') }}">

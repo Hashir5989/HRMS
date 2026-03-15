@@ -10,13 +10,15 @@ class DepartmentController extends Controller
 {
     public function index()
     {
-        $departments = Department::withCount('employees')->orderBy('name')->paginate(15);
+        $departments = Department::with('manager')->withCount('employees')->orderBy('name')->paginate(15);
+
         return view('departments.index', compact('departments'));
     }
 
     public function create()
     {
         $managers = User::role(['Manager', 'Admin', 'Super Admin'])->get();
+
         return view('departments.create', compact('managers'));
     }
 
@@ -31,18 +33,21 @@ class DepartmentController extends Controller
         ]);
 
         Department::create($validated);
+
         return redirect()->route('departments.index')->with('success', 'Department created successfully.');
     }
 
     public function show(Department $department)
     {
         $department->load(['employees.user', 'manager']);
+
         return view('departments.show', compact('department'));
     }
 
     public function edit(Department $department)
     {
         $managers = User::role(['Manager', 'Admin', 'Super Admin'])->get();
+
         return view('departments.edit', compact('department', 'managers'));
     }
 
@@ -51,12 +56,13 @@ class DepartmentController extends Controller
         $this->authorize('department.manage');
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:departments,name,' . $department->id,
+            'name' => 'required|string|max:255|unique:departments,name,'.$department->id,
             'description' => 'nullable|string|max:1000',
             'manager_id' => 'nullable|exists:users,id',
         ]);
 
         $department->update($validated);
+
         return redirect()->route('departments.index')->with('success', 'Department updated successfully.');
     }
 
@@ -69,6 +75,7 @@ class DepartmentController extends Controller
         }
 
         $department->delete();
+
         return redirect()->route('departments.index')->with('success', 'Department deleted successfully.');
     }
 }

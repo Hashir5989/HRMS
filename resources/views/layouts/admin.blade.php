@@ -172,6 +172,16 @@
                         </a>
                     </li>
                 </ul>
+
+                <p class="text-muted small fw-semibold text-uppercase px-3 mb-1 mt-3" style="font-size:0.65rem; letter-spacing:0.08em;">System</p>
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a href="{{ route('settings.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                            <i class="bi bi-gear-fill fs-5"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
             
             <div class="sidebar-footer p-3 border-top">
@@ -184,8 +194,8 @@
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
-                        <li><a class="dropdown-item" href="#">Profile</a></li>
-                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                        <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="bi bi-person me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="bi bi-gear me-2"></i>Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form action="{{ route('logout') }}" method="POST">

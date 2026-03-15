@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Register - HRMS Pro')
+
 @section('content')
 <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-gradient-premium py-5">
     <div class="row w-100 justify-content-center">

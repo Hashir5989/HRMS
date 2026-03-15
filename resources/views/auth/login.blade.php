@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Login - HRMS Pro')
+
 @section('content')
 <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-gradient-premium">
     <div class="row w-100 justify-content-center">

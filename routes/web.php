@@ -12,6 +12,7 @@ use App\Http\Controllers\LeaveApplicationController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TeamController;
@@ -100,4 +101,9 @@ Route::middleware(['auth'])->group(function () {
             'created_at' => $m->created_at->format('h:i A'),
         ]);
     });
+
+    // Account & System Settings
+    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::put('settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::put('settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password.update');
 });
