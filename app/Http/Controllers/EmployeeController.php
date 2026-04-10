@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -89,9 +90,38 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         $this->authorize('employee.view');
-        $employee->load(['department', 'designation', 'team', 'manager', 'user']);
+        $employee->load([
+            'department',
+            'designation',
+            'team',
+            'manager',
+            'user',
+            'tasks.project',
+        ]);
 
-        return view('employees.show', compact('employee'));
+        // Get projects where the employee is either the project manager, part of the project's team, or assigned tasks in the project
+        $userId = $employee->user_id;
+        $teamId = $employee->team_id;
+
+        $projects = Project::with(['projectManager', 'team'])
+            ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
+                $query->where('status', 'Completed');
+            }])
+            ->where(function ($query) use ($userId, $teamId) {
+                if ($userId) {
+                    $query->where('project_manager_id', $userId)
+                        ->orWhereHas('tasks', function ($q) use ($userId) {
+                            $q->where('assigned_user_id', $userId);
+                        });
+                }
+                if ($teamId) {
+                    $query->orWhere('team_id', $teamId);
+                }
+            })
+            ->distinct()
+            ->get();
+
+        return view('employees.show', compact('employee', 'projects'));
     }
 
     public function edit(Employee $employee)
