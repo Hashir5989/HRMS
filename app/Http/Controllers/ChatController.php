@@ -19,14 +19,10 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // All conversations the user is part of, with latest message
         $conversations = Conversation::whereHas('participants', fn($q) => $q->where('users.id', $user->id))
             ->with(['participants', 'latestMessage.user'])
-            ->orderByDesc(function ($query) {
-                // order by latest message
-            })
             ->get()
-            ->sortByDesc(fn($c) => $c->latestMessage?->created_at)
+            ->sortByDesc(fn($c) => $c->latestMessage?->created_at?->timestamp ?? 0)
             ->values();
 
         $users = User::where('id', '!=', $user->id)->get();
