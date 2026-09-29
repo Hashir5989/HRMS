@@ -143,6 +143,26 @@
                         </a>
                     </li>
                 </ul>
+
+                <p class="text-muted small fw-semibold text-uppercase px-3 mb-1 mt-3" style="font-size:0.65rem; letter-spacing:0.08em;">Communication</p>
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a href="{{ route('chat.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('chat.*') ? 'active' : '' }}">
+                            <i class="bi bi-chat-dots-fill fs-5"></i>
+                            <span>Chat</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('notifications.index') }}" class="nav-link text-dark rounded px-3 py-2 d-flex align-items-center gap-3 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
+                            <i class="bi bi-bell-fill fs-5"></i>
+                            <span>Notifications</span>
+                            @php $nbCount = auth()->user()->unreadNotifications->count(); @endphp
+                            @if($nbCount > 0)
+                            <span class="badge bg-danger rounded-pill ms-auto">{{ $nbCount }}</span>
+                            @endif
+                        </a>
+                    </li>
+                </ul>
             </div>
             
             <div class="sidebar-footer p-3 border-top">
@@ -186,17 +206,15 @@
                 
                 <div class="d-flex align-items-center gap-2 gap-md-4">
                     <div class="d-flex align-items-center gap-3">
-                        <a href="#" class="text-dark position-relative">
+                        <a href="{{ route('notifications.index') }}" class="text-dark position-relative" title="Notifications">
                             <i class="bi bi-bell fs-5"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                                3
+                            @php $unreadNotifs = auth()->user()->unreadNotifications->count(); @endphp
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notif-badge" style="font-size: 0.6rem; {{ $unreadNotifs === 0 ? 'display:none;' : '' }}">
+                                {{ $unreadNotifs }}
                             </span>
                         </a>
-                        <a href="#" class="text-dark position-relative">
+                        <a href="{{ route('chat.index') }}" class="text-dark position-relative" title="Chat">
                             <i class="bi bi-chat fs-5"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.6rem;">
-                                5
-                            </span>
                         </a>
                         <div class="vr mx-1"></div>
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">

@@ -50,4 +50,26 @@ Route::middleware(['auth'])->group(function () {
 
     // Designation Management
     Route::resource('designations', App\Http\Controllers\DesignationController::class);
+
+    // Chat / Messaging
+    Route::get('chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    Route::get('chat/{conversation}', [App\Http\Controllers\ChatController::class, 'show'])->name('chat.show');
+    Route::post('chat/message', [App\Http\Controllers\ChatController::class, 'store'])->name('chat.store');
+    Route::post('chat/start', [App\Http\Controllers\ChatController::class, 'startConversation'])->name('chat.start');
+
+    // Notifications
+    Route::get('notifications', [App\Http\Controllers\ChatController::class, 'notifications'])->name('notifications.index');
+    Route::post('notifications/mark-all-read', [App\Http\Controllers\ChatController::class, 'markAllRead'])->name('notifications.markAllRead');
+    Route::get('api/notifications', [App\Http\Controllers\ChatController::class, 'getNotificationsJson'])->name('notifications.json');
+    Route::get('api/chat/{conversation}/messages', function (\App\Models\Conversation $conversation, \Illuminate\Http\Request $request) {
+        if (!$conversation->participants->contains(auth()->id())) abort(403);
+        $after = $request->query('after', 0);
+        return $conversation->messages()->with('user')->where('id', '>', $after)->get()->map(fn($m) => [
+            'id' => $m->id,
+            'user_id' => $m->user_id,
+            'user_name' => $m->user->name,
+            'body' => $m->body,
+            'created_at' => $m->created_at->format('h:i A'),
+        ]);
+    });
 });
