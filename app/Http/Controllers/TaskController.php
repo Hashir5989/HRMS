@@ -38,7 +38,8 @@ class TaskController extends Controller
     {
         $this->authorize('task.view');
         $task->load(['project', 'assignee', 'creator', 'comments.user', 'attachments']);
-        return view('tasks.show', compact('task'));
+        $users = User::all();
+        return view('tasks.show', compact('task', 'users'));
     }
 
     public function store(Request $request)
@@ -82,7 +83,24 @@ class TaskController extends Controller
 
         return back()->with('success', 'Task status updated.');
     }
+    public function update(Request $request, Task $task)
+    {
+        $this->authorize('task.edit');
+
+        $validated = $request->validate([
+            'status' => 'required|in:Backlog,QA Ready,QA,Rework,Ready to Live,Live,Completed',
+            'assigned_user_id' => 'nullable|exists:users,id',
+            'priority' => 'required|in:low,medium,high,urgent',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string'
+        ]);
+
+        $task->update($validated);
+
+        return back()->with('success', 'Task updated successfully.');
+    }
     
+
     public function destroy(Task $task)
     {
         $this->authorize('task.delete');

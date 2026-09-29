@@ -26,6 +26,9 @@ Route::middleware(['auth'])->group(function () {
     // Task Management
     Route::resource('tasks', App\Http\Controllers\TaskController::class);
     Route::put('tasks/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+    Route::post('tasks/{task}/comments', [App\Http\Controllers\TaskCommentController::class, 'store'])->name('tasks.comments.store');
+    Route::put('comments/{comment}', [App\Http\Controllers\TaskCommentController::class, 'update'])->name('comments.update');
+    Route::delete('comments/{comment}', [App\Http\Controllers\TaskCommentController::class, 'destroy'])->name('comments.destroy');
 
     // Leave Management
     Route::resource('leaves', App\Http\Controllers\LeaveApplicationController::class)->parameters(['leaves' => 'leaf']);
