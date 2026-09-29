@@ -62,7 +62,9 @@
                                 </span>
                             </div>
                             
-                            <h6 class="fw-bold text-dark mb-2 task-title">{{ $task->title }}</h6>
+                            <a href="{{ route('tasks.show', $task) }}" class="text-decoration-none">
+                                <h6 class="fw-bold text-dark mb-2 task-title">{{ $task->title }}</h6>
+                            </a>
                             
                             <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                                 <div class="d-flex align-items-center gap-2 text-muted fs-7">
