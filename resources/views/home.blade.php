@@ -97,50 +97,49 @@
 
     <!-- Second Row: Charts & Overview -->
     <div class="row g-3 mb-4">
-        <!-- Task Distribution Chart -->
+        <!-- Analytics Charts -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Task Overview</h6>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Tasks Overview</h6>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center" style="position: relative; height:250px;">
+                            <canvas id="tasksChart"></canvas>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        @php
-                            $statuses = [
-                                'backlog' => ['label' => 'Backlog', 'color' => '#6c757d', 'icon' => 'inbox'],
-                                'todo' => ['label' => 'To Do', 'color' => '#0ea5e9', 'icon' => 'list-task'],
-                                'in_progress' => ['label' => 'In Progress', 'color' => '#f59e0b', 'icon' => 'play-circle'],
-                                'review' => ['label' => 'Review', 'color' => '#8b5cf6', 'icon' => 'eye'],
-                                'qa' => ['label' => 'QA', 'color' => '#ec4899', 'icon' => 'bug'],
-                                'done' => ['label' => 'Done', 'color' => '#10b981', 'icon' => 'check-circle'],
-                            ];
-                        @endphp
-                        @foreach($statuses as $key => $status)
-                        <div class="col-6 col-md-4 col-lg-2">
-                            <div class="text-center p-3 rounded-3" style="background: {{ $status['color'] }}15;">
-                                <i class="bi bi-{{ $status['icon'] }} fs-3" style="color: {{ $status['color'] }}"></i>
-                                <h3 class="fw-bold mt-2 mb-0" style="color: {{ $status['color'] }}">{{ $tasksByStatus[$key] ?? 0 }}</h3>
-                                <small class="text-muted">{{ $status['label'] }}</small>
-                            </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Attendance Trends (Last 7 Days)</h6>
                         </div>
-                        @endforeach
+                        <div class="card-body d-flex justify-content-center align-items-center" style="position: relative; height:250px;">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
                     </div>
-
-                    <!-- Task Progress Bar -->
-                    <div class="mt-4">
-                        <div class="d-flex justify-content-between mb-2">
-                            <small class="text-muted">Overall Completion</small>
-                            @php
-                                $done = $tasksByStatus['done'] ?? 0;
-                                $total = $totalTasks ?: 1;
-                                $percentage = round(($done / $total) * 100);
-                            @endphp
-                            <small class="fw-semibold">{{ $percentage }}%</small>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-diagram-2-fill me-2 text-warning"></i>Project Status</h6>
                         </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-success rounded-pill" style="width: {{ $percentage }}%"></div>
+                        <div class="card-body d-flex justify-content-center align-items-center" style="position: relative; height:250px;">
+                            <canvas id="projectsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-calendar2-x-fill me-2 text-danger"></i>Leave Distribution</h6>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center" style="position: relative; height:250px;">
+                            <canvas id="leavesChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -376,4 +375,102 @@
     }
     .ls-wide { letter-spacing: 0.05em; }
 </style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, usePointStyle: true } }
+            }
+        };
+
+        // 1. Tasks Chart (Doughnut)
+        new Chart(document.getElementById('tasksChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Backlog', 'To Do', 'In Progress', 'Review', 'QA', 'Done'],
+                datasets: [{
+                    data: [
+                        {{ $tasksByStatus['backlog'] ?? 0 }},
+                        {{ $tasksByStatus['todo'] ?? 0 }},
+                        {{ $tasksByStatus['in_progress'] ?? 0 }},
+                        {{ $tasksByStatus['review'] ?? 0 }},
+                        {{ $tasksByStatus['qa'] ?? 0 }},
+                        {{ $tasksByStatus['done'] ?? 0 }}
+                    ],
+                    backgroundColor: ['#6c757d', '#0ea5e9', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981'],
+                    borderWidth: 0
+                }]
+            },
+            options: { ...commonOptions, cutout: '70%' }
+        });
+
+        // 2. Attendance Chart (Bar)
+        new Chart(document.getElementById('attendanceChart'), {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($last7Days) !!},
+                datasets: [{
+                    label: 'Present Employees',
+                    data: {!! json_encode($attendanceData) !!},
+                    backgroundColor: '#10b981',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [4, 4] } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 3. Projects Chart (Pie)
+        new Chart(document.getElementById('projectsChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled'],
+                datasets: [{
+                    data: [
+                        {{ $projectsByStatus['planning'] ?? 0 }},
+                        {{ $projectsByStatus['in_progress'] ?? 0 }},
+                        {{ $projectsByStatus['on_hold'] ?? 0 }},
+                        {{ $projectsByStatus['completed'] ?? 0 }},
+                        {{ $projectsByStatus['cancelled'] ?? 0 }}
+                    ],
+                    backgroundColor: ['#6c757d', '#0ea5e9', '#f59e0b', '#10b981', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: commonOptions
+        });
+
+        // 4. Leaves Chart (Doughnut)
+        new Chart(document.getElementById('leavesChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Approved', 'Rejected', 'Cancelled'],
+                datasets: [{
+                    data: [
+                        {{ $leavesByStatus['pending'] ?? 0 }},
+                        {{ $leavesByStatus['approved'] ?? 0 }},
+                        {{ $leavesByStatus['rejected'] ?? 0 }},
+                        {{ $leavesByStatus['cancelled'] ?? 0 }}
+                    ],
+                    backgroundColor: ['#f59e0b', '#10b981', '#ef4444', '#6c757d'],
+                    borderWidth: 0
+                }]
+            },
+            options: { ...commonOptions, cutout: '70%' }
+        });
+    });
+</script>
 @endpush

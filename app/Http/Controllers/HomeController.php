@@ -64,6 +64,23 @@ class HomeController extends Controller
             ->where('status', 'present')
             ->count();
 
+        // Attendance trends (last 7 days)
+        $last7Days = [];
+        $attendanceData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $last7Days[] = $date->format('M d');
+            $attendanceData[] = Attendance::where('date', $date->toDateString())
+                ->where('status', 'present')
+                ->count();
+        }
+
+        // Leave distribution
+        $leavesByStatus = LeaveApplication::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
         // Departments count
         $totalDepartments = Department::count();
 
@@ -73,7 +90,8 @@ class HomeController extends Controller
         return view('home', compact(
             'totalEmployees', 'totalProjects', 'totalTasks', 'pendingLeaves',
             'tasksByStatus', 'projectsByStatus', 'myTasks', 'recentLeaves',
-            'todayAttendance', 'presentToday', 'totalDepartments', 'recentProjects'
+            'todayAttendance', 'presentToday', 'totalDepartments', 'recentProjects',
+            'last7Days', 'attendanceData', 'leavesByStatus'
         ));
     }
 }
